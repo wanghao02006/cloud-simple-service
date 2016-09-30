@@ -1,3 +1,5 @@
+# eureka instance/client的这些配置信息必须写在application.yml而不是bootstrap.yml里面，如果写在bootstrap.yml里面，会导致instance在eureka server里面的状态显示为UNKNOWN，
+# 并且instance不断重复往eureka server里面进行注册
 spring:
   cloud:
     config:
@@ -19,6 +21,9 @@ server:
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10
+    metadataMap:
+      # 自定义的一个元数据，用来把这个service的hystrix信息归类到一个名为pipa的cluster里面，这样turbine监控页面上会将同一cluster的所有service的断路器数据一起显示
+      turbineCluster: pipa
     
   client:
     healthcheck:
