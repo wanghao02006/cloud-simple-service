@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    config:
+      # 采用直接配置config server的方式来获取配置信息
+      #uri: http://127.0.0.1:${config.port:8888}
+      # 采用从eureka server中查询config server服务的方式来获取配置信息，默认是false
+      discovery:
+        enabled: true
+        serviceId: cloud-config-server
+      name: helloworld
+      profile: ${config.profile:dev}
+      
+  application:
+    name: user-service
+    
+server:
+  port: 8081
+  
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://peer1:8761/eureka/
