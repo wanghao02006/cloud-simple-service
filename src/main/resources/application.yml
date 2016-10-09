@@ -1,19 +1,25 @@
-# eureka instance/client的这些配置信息必须写在application.yml而不是bootstrap.yml里面，如果写在bootstrap.yml里面，会导致instance在eureka server里面的状态显示为UNKNOWN，
-# 并且instance不断重复往eureka server里面进行注册
+# eureka instance/client的这些配置信息必须写在application.yml而不是bootstrap.yml里面，如果写在bootstrap.yml里面，
+# 会导致instance在eureka server里面的状态显示为UNKNOWN，并且instance不断重复往eureka server里面进行注册
 spring:
   cloud:
     config:
       # 采用直接配置config server的方式来获取配置信息
-      #uri: http://127.0.0.1:${config.port:8888}
+      # uri: http://127.0.0.1:${config.port:8888}
       # 采用从eureka server中查询config server服务的方式来获取配置信息，默认是false
       discovery:
         enabled: true
         serviceId: cloud-config-server
+      # 最终获取的配置文件为{name}-{profile}.yml
       name: helloworld
+      # 如果转入了config.profile就用传入的值，否则默认值为dev
       profile: ${config.profile:dev}
+      # 可以根据需要设置label，对于git来说，label可以对应某个branch，某个commitid或者某个tag
+      # label: branch/commitid/tag
       
   application:
-    name: user-service
+    name: @project.name@
+
+info.version: @project.version@
     
 server:
   port: 8081
@@ -22,7 +28,8 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10
     metadataMap:
-      # 自定义的一个元数据，用来把这个service的hystrix信息归类到一个名为pipa的cluster里面，这样turbine监控页面上会将同一cluster的所有service的断路器数据一起显示
+      # 自定义的一个元数据，用来把这个service的hystrix信息归类到一个名为pipa的cluster里面，
+      # 这样turbine监控页面上会将同一cluster的所有service的断路器数据一起显示
       turbineCluster: pipa
     
   client:
