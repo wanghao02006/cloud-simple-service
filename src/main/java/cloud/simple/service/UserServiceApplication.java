@@ -1,35 +1,22 @@
 package cloud.simple.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.session.data.redis.RedisFlushMode;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import cloud.simple.service.conf.DataSourceProperties;
 
 @SpringBootApplication
-@RestController
+@EnableEurekaClient
 @EnableCircuitBreaker
 @EnableConfigurationProperties(DataSourceProperties.class)
+// 1分钟后session失效
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60, redisFlushMode = RedisFlushMode.IMMEDIATE)
 public class UserServiceApplication {
-
-	@Value("${name}")
-	String name = "World";
-
-	@Value("${age}")
-	Integer age = 0;
-
-	@Autowired
-	private DataSourceProperties dataSourceProperties;
-
-	@RequestMapping("/")
-	public String home() {
-		return "name=" + name + " ,age=" + age + " ,pass=" + dataSourceProperties.getPassword() + ",url=" + dataSourceProperties.getUrl();
-	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(UserServiceApplication.class, args);
