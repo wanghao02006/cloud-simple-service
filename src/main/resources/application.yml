@@ -42,6 +42,7 @@ server:
   
 eureka:
   instance:
+    # appname: @project.name@
     leaseRenewalIntervalInSeconds: 10
     metadataMap:
       # 自定义的一个元数据，用来把这个service的hystrix信息归类到一个名为pipa的cluster里面，
@@ -53,3 +54,6 @@ eureka:
       enabled: true
     serviceUrl:
       defaultZone: http://peer1:8761/eureka/
+      
+# 通过这个uri从oauth2 server根据token获取当前登录用户信息
+security.oauth2.resource.userInfoUri: http://peer1:8080/uaa/user
