@@ -1,9 +1,11 @@
 package cloud.simple.service.web;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
-import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.simple.gateway.oauth2.CustomUserDetail;
+
+import cloud.simple.service.Swagger2;
 import cloud.simple.service.conf.DataSourceProperties;
 import cloud.simple.service.domain.UserService;
-import cloud.simple.service.model.CustomUserDetail;
 import cloud.simple.service.model.User;
 
 @RestController
@@ -40,25 +44,29 @@ public class UserController {
 	@Autowired
 	private DataSourceProperties dataSourceProperties;
 
+	@ApiOperation(value = "读取配置", notes = ""
+			, authorizations = @Authorization(value = Swagger2.schemaClientCrendential
+//			, scopes = {
+//			@AuthorizationScope(scope = Swagger2.authorizationScopeRead, description = "Read access to user data"),
+//			@AuthorizationScope(scope = Swagger2.authorizationScopeWrite, description = "Write access to user data") }
+	)
+	)
 	@RequestMapping(value = "/conf", method = RequestMethod.GET)
-	public String home(Principal p) {
+	public String home() {
 		CustomUserDetail user = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		CustomUserDetail u=(CustomUserDetail)SecurityContextHolder.getContext().getAuthentication().getDetails();
 		String s = "";
 		if (user != null)
-			s = "principal=" + user;
+			s = "principal=" + (user.isClientOnly() ? user.getClientId() : user.getUserId());
 		else
 			s = "principal=UNKNOWN";
-		s += ", name=" + name + " ,age=" + age + " ,pass=" + dataSourceProperties.getPassword() + ",url="
-				+ dataSourceProperties.getUrl();
+		s += ", name=" + name + " ,age=" + age + " ,pass=" + dataSourceProperties.getPassword() + ",url=" + dataSourceProperties.getUrl();
 		return s;
 	}
 
 	// 通过http://user-service/swagger-ui.html可以查看api文档页面
-	@ApiOperation(value = "Get方式获取用户列表", notes = "notes for Get方式获取用户列表")
+	@ApiOperation(value = "Get方式获取用户列表", notes = "notes for Get方式获取用户列表", authorizations = @Authorization(Swagger2.schemaImplicit))
 	@RequestMapping(value = "/{username}", method = RequestMethod.GET)
-	public List<User> readUserInfo(
-			@ApiParam(name = "username", value = "用户名", required = true) @PathVariable("username") String userName) {
+	public List<User> readUserInfo(@ApiParam(name = "username", value = "用户名", required = true) @PathVariable("username") String userName) {
 		List<User> ls = userService.searchAll();
 		User u = new User();
 		u.setId(userName);
@@ -69,8 +77,7 @@ public class UserController {
 
 	@ApiOperation(value = "Post方式获取用户列表", notes = "notes for Post方式获取用户列表")
 	@RequestMapping(value = "/{username}", method = RequestMethod.POST)
-	public List<User> readUserInfo2(
-			@ApiParam(name = "username", value = "用户名", required = true) @PathVariable("username") String userName,
+	public List<User> readUserInfo2(@ApiParam(name = "username", value = "用户名", required = true) @PathVariable("username") String userName,
 			@ApiParam(name = "param", value = "request参数", required = false) @RequestParam("param") String param,
 			@ApiParam(name = "some_header", value = "header参数", required = false) @RequestHeader("some_header") String header,
 			@ApiParam(name = "user", value = "用户详细实体user", required = true) @RequestBody User user) {
