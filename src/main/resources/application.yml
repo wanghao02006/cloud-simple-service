@@ -10,7 +10,7 @@ spring:
         enabled: true
         serviceId: cloud-config-server
       # 最终获取的配置文件为{name}-{profile}.yml
-      name: helloworld
+      name: @project.name@
       # 如果转入了config.profile就用传入的值，否则默认值为dev
       profile: ${config.profile:dev}
       # 可以根据需要设置label，对于git来说，label可以对应某个branch，某个commitid或者某个tag
